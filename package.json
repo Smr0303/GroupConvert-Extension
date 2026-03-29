@@ -1,0 +1,44 @@
+{
+  "name": "group-convert-extension",
+  "displayName": "GroupConvert POC",
+  "version": "0.1.0",
+  "description": "Capture leads from Facebook Group member requests",
+  "scripts": {
+    "dev": "plasmo dev",
+    "build": "plasmo build",
+    "build:zip": "plasmo build --zip"
+  },
+  "dependencies": {
+    "plasmo": "^0.89.3",
+    "@plasmohq/messaging": "^0.7.1",
+    "@plasmohq/storage": "^1.12.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.0.287",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "typescript": "^5.7.2"
+  },
+  "manifest": {
+    "permissions": [
+      "storage",
+      "activeTab",
+      "sidePanel"
+    ],
+    "host_permissions": [
+      "https://www.facebook.com/*"
+    ]
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@parcel/watcher",
+      "@swc/core",
+      "esbuild",
+      "lmdb",
+      "msgpackr-extract",
+      "sharp"
+    ]
+  }
+}
