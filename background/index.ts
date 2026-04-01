@@ -149,10 +149,10 @@ chrome.tabs.onUpdated.addListener(async (tabId, changeInfo, tab) => {
       }
     }
 
-    // Close the OAuth tab after a short delay
+    // Close the OAuth tab after 20s so user can read instructions
     setTimeout(() => {
       chrome.tabs.remove(tabId).catch(() => {})
-    }, 2000)
+    }, 20000)
   }
 })
 
