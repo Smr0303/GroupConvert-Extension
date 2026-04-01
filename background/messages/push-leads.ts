@@ -36,7 +36,9 @@ const handler: PlasmoMessaging.MessageHandler<
     const leads = req.body?.leads || storage.pendingLeads || []
     const token = storage.authToken as string | undefined
     const backendUrl =
-      (storage.backendUrl as string) || "http://localhost:3000"
+      (storage.backendUrl as string) ||
+      process.env.PLASMO_PUBLIC_BACKEND_URL ||
+      "http://localhost:3000"
 
     if (!token) {
       res.send({
