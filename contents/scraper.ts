@@ -3,7 +3,7 @@ import { observeNewCards, type ParsedMember } from "~lib/dom-parser"
 
 export const config: PlasmoCSConfig = {
   matches: ["https://www.facebook.com/groups/*/member-requests*"],
-  run_at: "document_idle"
+  run_at: "document_end"
 }
 
 /**
@@ -63,15 +63,28 @@ async function handleNewMembers(newMembers: ParsedMember[]): Promise<void> {
   await saveLeads(allLeads)
 
   console.log(
-    `[GroupConvert] Found ${newLeads.length} new leads (${allLeads.length} total pending)`
+    `[GroupMailBox] Found ${newLeads.length} new leads (${allLeads.length} total pending)`
   )
 }
 
 // Mark that we're on the member requests page
-chrome.storage.local.set({ onMemberRequestsPage: true })
+chrome.storage.local.set({ onMemberRequestsPage: true, scrapingStatus: "scanning" })
 
 // Start observing the DOM for member request cards
-const observer = observeNewCards(handleNewMembers)
+const observer = observeNewCards((members) => {
+  if (members.length > 0) {
+    chrome.storage.local.set({ scrapingStatus: "found" })
+  }
+  handleNewMembers(members)
+})
+
+// If no cards found after initial scan, update status
+setTimeout(async () => {
+  const result = await chrome.storage.local.get("pendingLeadsCount")
+  if (!result.pendingLeadsCount || result.pendingLeadsCount === 0) {
+    chrome.storage.local.set({ scrapingStatus: "no_cards_found" })
+  }
+}, 3000)
 
 // Clean up when navigating away
 window.addEventListener("beforeunload", () => {
@@ -106,4 +119,4 @@ chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   }
 })
 
-console.log("[GroupConvert] Scraper content script loaded on member-requests page")
+console.log("[GroupMailBox] Scraper content script loaded on member-requests page")

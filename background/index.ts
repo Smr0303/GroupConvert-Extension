@@ -1,5 +1,5 @@
 /**
- * Background service worker for GroupConvert.
+ * Background service worker for GroupMailBox.
  * Handles messaging between content scripts and side panel.
  */
 
@@ -21,6 +21,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     handleGetSettings().then(sendResponse)
     return true
   }
+
+  if (message.type === "OPEN_SIDE_PANEL") {
+    if (sender.tab?.windowId) {
+      chrome.sidePanel.open({ windowId: sender.tab.windowId })
+    }
+    sendResponse({ success: true })
+    return true
+  }
 })
 
 async function handlePushLeads(): Promise<{
@@ -37,7 +45,10 @@ async function handlePushLeads(): Promise<{
 
     const leads = storage.pendingLeads || []
     const token = storage.authToken
-    const backendUrl = storage.backendUrl || "http://localhost:3000"
+    const backendUrl =
+      storage.backendUrl ||
+      process.env.PLASMO_PUBLIC_BACKEND_URL ||
+      "http://localhost:3000"
 
     if (!token) {
       return { success: false, error: "Not authenticated. Verify license in popup." }
@@ -104,4 +115,4 @@ async function handleGetSettings(): Promise<Record<string, unknown>> {
   return result
 }
 
-console.log("[GroupConvert] Background service worker loaded")
+console.log("[GroupMailBox] Background service worker loaded")

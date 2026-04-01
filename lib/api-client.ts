@@ -1,5 +1,5 @@
 /**
- * Backend API client for GroupConvert.
+ * Backend API client for GroupMailBox.
  * Wraps fetch calls to the backend Express server.
  */
 
@@ -34,6 +34,27 @@ interface LeadPayload {
   groupUrl?: string
 }
 
+/**
+ * Check if the stored JWT token has expired.
+ */
+export async function isTokenExpired(): Promise<boolean> {
+  const result = await chrome.storage.local.get("tokenExpiresAt")
+  return Date.now() > (result.tokenExpiresAt || 0)
+}
+
+/**
+ * Clear auth state and signal re-auth needed.
+ */
+export async function clearAuthState(): Promise<void> {
+  await chrome.storage.local.remove([
+    "authToken",
+    "tokenExpiresAt",
+    "userId",
+    "userEmail",
+    "userPlan"
+  ])
+}
+
 async function request<T>(
   endpoint: string,
   options: RequestInit = {}
@@ -45,10 +66,33 @@ async function request<T>(
     ...(options.headers as Record<string, string>)
   }
 
-  const response = await fetch(url, {
-    ...options,
-    headers
-  })
+  // Check token expiry for authenticated requests
+  if (headers.Authorization) {
+    const expired = await isTokenExpired()
+    if (expired) {
+      await clearAuthState()
+      throw new Error("Your session has expired. Please re-verify your license.")
+    }
+  }
+
+  let response: Response
+  try {
+    response = await fetch(url, {
+      ...options,
+      headers
+    })
+  } catch (err) {
+    if (!navigator.onLine) {
+      throw new Error("You appear to be offline. Check your internet connection and try again.")
+    }
+    throw new Error("Unable to reach GroupMailBox server. Please try again in a moment.")
+  }
+
+  // Handle 401 - trigger re-auth
+  if (response.status === 401) {
+    await clearAuthState()
+    throw new Error("Your session has expired. Please re-verify your license.")
+  }
 
   if (!response.ok) {
     const body = await response.text()

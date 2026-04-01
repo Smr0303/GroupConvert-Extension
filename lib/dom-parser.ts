@@ -54,12 +54,12 @@ export function parseAllMemberCards(): ParseResult {
 
   if (cards.length === 0) {
     errors.push("No member request cards found on page")
-    console.log("[GroupConvert] No cards found. Approve buttons on page:",
+    console.log("[GroupMailBox] No cards found. Approve buttons on page:",
       document.querySelectorAll('[role="button"][aria-label^="Approve"]').length)
     return { members, errors }
   }
 
-  console.log(`[GroupConvert] Found ${cards.length} member request cards`)
+  console.log(`[GroupMailBox] Found ${cards.length} member request cards`)
 
   for (const card of cards) {
     try {
@@ -83,7 +83,7 @@ export function parseAllMemberCards(): ParseResult {
       }
 
       members.push(member)
-      console.log(`[GroupConvert] Parsed: ${name}`, { profileUrl, answers })
+      console.log(`[GroupMailBox] Parsed: ${name}`, { profileUrl, answers })
     } catch (err) {
       errors.push(
         `Failed to parse card: ${err instanceof Error ? err.message : String(err)}`

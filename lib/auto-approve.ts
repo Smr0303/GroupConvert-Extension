@@ -53,7 +53,7 @@ export async function autoApprove(
   const cap = Math.min(maxCount, MAX_PER_SESSION)
   const cards = findAllCards()
 
-  console.log(`[GroupConvert] Auto-approve: found ${cards.length} cards`)
+  console.log(`[GroupMailBox] Auto-approve: found ${cards.length} cards`)
 
   for (let i = 0; i < Math.min(cards.length, cap); i++) {
     if (shouldStop?.()) {
@@ -73,7 +73,7 @@ export async function autoApprove(
     try {
       await simulateClick(approveBtn)
       result.approved++
-      console.log(`[GroupConvert] Approved card ${i + 1}/${cards.length}`)
+      console.log(`[GroupMailBox] Approved card ${i + 1}/${cards.length}`)
 
       if (i < cards.length - 1) {
         const delay = randomDelay(delayMin, delayMax)
@@ -87,6 +87,6 @@ export async function autoApprove(
     }
   }
 
-  console.log(`[GroupConvert] Auto-approve done: ${result.approved} approved, ${result.failed} failed`)
+  console.log(`[GroupMailBox] Auto-approve done: ${result.approved} approved, ${result.failed} failed`)
   return result
 }

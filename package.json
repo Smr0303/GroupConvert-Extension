@@ -1,6 +1,6 @@
 {
-  "name": "group-convert-extension",
-  "displayName": "GroupConvert POC",
+  "name": "groupmailbox-extension",
+  "displayName": "GroupMailBox",
   "version": "0.1.0",
   "description": "Capture leads from Facebook Group member requests",
   "scripts": {
