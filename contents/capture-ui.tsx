@@ -3,7 +3,8 @@ import { useEffect, useState, useCallback } from "react"
 import { autoApprove } from "~lib/auto-approve"
 
 export const config: PlasmoCSConfig = {
-  matches: ["https://www.facebook.com/groups/*/member-requests*"]
+  matches: ["https://www.facebook.com/groups/*/member-requests*"],
+  run_at: "document_end"
 }
 
 /**
@@ -18,16 +19,22 @@ export const getStyle: PlasmoGetStyle = () => {
     :host {
       all: initial;
       font-family: 'DM Sans', sans-serif;
+      --navy: #1a1a2e;
+      --teal: #00d4aa;
+      --teal-dim: #00b894;
+      --text-primary: #f0f0f0;
+      --text-muted: #8888a8;
+      --red: #ff6b6b;
     }
 
     .gc-overlay {
       position: fixed;
       bottom: 24px;
-      right: 24px;
+      left: 24px;
       z-index: 99999;
       display: flex;
       flex-direction: column;
-      align-items: flex-end;
+      align-items: flex-start;
       gap: 8px;
     }
 
@@ -40,7 +47,6 @@ export const getStyle: PlasmoGetStyle = () => {
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
       color: #e0e0e0;
       font-family: 'DM Sans', sans-serif;
-      animation: gc-slide-up 0.25s ease-out;
     }
 
     @keyframes gc-slide-up {
@@ -64,7 +70,7 @@ export const getStyle: PlasmoGetStyle = () => {
     .gc-close-btn {
       background: none;
       border: none;
-      color: #888;
+      color: #a0a0b8;
       cursor: pointer;
       font-size: 16px;
       padding: 2px 6px;
@@ -187,10 +193,97 @@ export const getStyle: PlasmoGetStyle = () => {
       transform: translateX(16px);
     }
 
+    .gc-btn-secondary {
+      background: #2d2d52;
+      color: #f0f0f0;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .gc-btn-secondary:hover {
+      background: rgba(255,255,255,0.08);
+    }
+
+    .gc-confirm-overlay {
+      background: rgba(26, 26, 46, 0.95);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      margin-top: 8px;
+      border: 1px solid rgba(255, 107, 107, 0.2);
+    }
+
+    .gc-confirm-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .gc-confirm-text {
+      font-size: 12px;
+      color: #a0a0b8;
+      margin: 0 0 12px;
+      line-height: 1.4;
+    }
+
+    .gc-confirm-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .gc-confirm-actions .gc-btn {
+      flex: 1;
+      margin-bottom: 0;
+    }
+
     .gc-status {
       font-size: 11px;
-      color: #888;
+      color: #8888a8;
       margin-top: 4px;
+    }
+
+    .gc-status-success {
+      color: #00d4aa;
+    }
+
+    .gc-status-error {
+      color: #ff6b6b;
+    }
+
+    .gc-setup-warning {
+      background: rgba(255, 217, 61, 0.08);
+      border: 1px solid rgba(255, 217, 61, 0.15);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 11px;
+      color: #a0a0b8;
+      margin-bottom: 8px;
+    }
+
+    .gc-settings-link {
+      display: block;
+      text-align: center;
+      font-size: 11px;
+      color: #8888a8;
+      cursor: pointer;
+      padding: 4px;
+      margin-top: 4px;
+    }
+
+    .gc-settings-link:hover {
+      color: #00d4aa;
+    }
+
+    .gc-panel-open {
+      opacity: 1;
+      transform: translateY(0);
+      transition: all 0.25s ease-out;
+      pointer-events: auto;
+    }
+
+    .gc-panel-closed {
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.2s ease-in;
     }
 
     .gc-fab {
@@ -261,11 +354,34 @@ const CaptureOverlay = () => {
   const [pushStatus, setPushStatus] = useState("")
   const [autoApproveEnabled, setAutoApproveEnabled] = useState(false)
   const [isApproving, setIsApproving] = useState(false)
+  const [showApproveConfirm, setShowApproveConfirm] = useState(false)
+  const [scrapingStatus, setScrapingStatus] = useState<string>("scanning")
+  const [sheetsReady, setSheetsReady] = useState(false)
+  const [lastPushInfo, setLastPushInfo] = useState<{ count: number; at: number } | null>(null)
+
+  // Escape key closes the panel
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && isOpen) {
+        setIsOpen(false)
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown)
+    return () => document.removeEventListener("keydown", handleKeyDown)
+  }, [isOpen])
 
   const refreshCount = useCallback(() => {
-    chrome.storage.local.get("pendingLeadsCount", (result) => {
-      setLeadCount(result.pendingLeadsCount || 0)
-    })
+    chrome.storage.local.get(
+      ["pendingLeadsCount", "scrapingStatus", "googleConnected", "sheetId", "lastPushAt", "lastPushCount"],
+      (result) => {
+        setLeadCount(result.pendingLeadsCount || 0)
+        if (result.scrapingStatus) setScrapingStatus(result.scrapingStatus)
+        setSheetsReady(!!(result.googleConnected && result.sheetId))
+        if (result.lastPushAt) {
+          setLastPushInfo({ count: result.lastPushCount || 0, at: result.lastPushAt })
+        }
+      }
+    )
   }, [])
 
   useEffect(() => {
@@ -311,6 +427,14 @@ const CaptureOverlay = () => {
     }
   }
 
+  const formatTimeAgo = (ts: number) => {
+    const diff = Math.floor((Date.now() - ts) / 1000)
+    if (diff < 60) return "just now"
+    if (diff < 3600) return `${Math.floor(diff / 60)} min ago`
+    if (diff < 86400) return `${Math.floor(diff / 3600)}h ago`
+    return new Date(ts).toLocaleDateString()
+  }
+
   const handleAutoApprove = async () => {
     if (isApproving) return
 
@@ -333,54 +457,98 @@ const CaptureOverlay = () => {
 
   return (
     <div className="gc-overlay">
-      {isOpen && (
-        <div className="gc-panel">
+        <div className={`gc-panel ${isOpen ? "gc-panel-open" : "gc-panel-closed"}`}>
           <div className="gc-panel-header">
-            <span className="gc-panel-title">GroupConvert</span>
+            <span className="gc-panel-title">GroupMailBox</span>
             <button
               className="gc-close-btn"
               onClick={() => setIsOpen(false)}
-              title="Close">
+              title="Close"
+              aria-label="Close panel">
               x
             </button>
           </div>
 
-          <div className="gc-stat">
+          <div className="gc-stat" role="status" aria-live="polite">
             <span className="gc-stat-value">{leadCount}</span>
-            <span>leads captured</span>
+            <span>
+              {scrapingStatus === "scanning"
+                ? "Scanning for requests..."
+                : scrapingStatus === "no_cards_found"
+                  ? "No pending requests found"
+                  : "leads captured"}
+            </span>
           </div>
+
+          {lastPushInfo && (
+            <div className="gc-status" style={{ marginBottom: 8 }}>
+              Last push: {lastPushInfo.count} leads, {formatTimeAgo(lastPushInfo.at)}
+            </div>
+          )}
+
+          {!sheetsReady && (
+            <div className="gc-setup-warning">
+              {"\u26A0\uFE0F"} Setup incomplete — open side panel to connect Google Sheets
+            </div>
+          )}
 
           <button
             className="gc-btn gc-btn-primary"
             onClick={handlePush}
-            disabled={isPushing || leadCount === 0}>
-            {isPushing ? "Pushing..." : "Capture & Push"}
+            disabled={isPushing || leadCount === 0 || !sheetsReady}>
+            {isPushing ? "Pushing..." : "Push to Sheets"}
           </button>
 
-          <div className="gc-toggle-row">
-            <span className="gc-toggle-label">Auto-Approve</span>
-            <label className="gc-toggle">
-              <input
-                type="checkbox"
-                checked={autoApproveEnabled}
-                onChange={(e) => {
-                  setAutoApproveEnabled(e.target.checked)
-                  if (e.target.checked) {
+          <button
+            className="gc-btn gc-btn-danger"
+            onClick={() => setShowApproveConfirm(true)}
+            disabled={isApproving || leadCount === 0}
+            aria-label="Approve all pending requests">
+            {isApproving ? "Approving..." : "Approve All Now"}
+          </button>
+
+          {showApproveConfirm && (
+            <div className="gc-confirm-overlay">
+              <div className="gc-confirm-icon">{"\u26A0\uFE0F"}</div>
+              <p className="gc-confirm-text">
+                This will automatically approve all pending member requests. This cannot be undone.
+              </p>
+              <div className="gc-confirm-actions">
+                <button
+                  className="gc-btn gc-btn-secondary"
+                  onClick={() => setShowApproveConfirm(false)}>
+                  Cancel
+                </button>
+                <button
+                  className="gc-btn gc-btn-danger"
+                  onClick={() => {
+                    setShowApproveConfirm(false)
                     handleAutoApprove()
-                  }
-                }}
-              />
-              <span className="gc-toggle-track" />
-              <span className="gc-toggle-thumb" />
-            </label>
-          </div>
+                  }}>
+                  Approve All
+                </button>
+              </div>
+            </div>
+          )}
 
           {pushStatus && <div className="gc-status">{pushStatus}</div>}
-        </div>
-      )}
 
-      <button className="gc-fab" onClick={() => setIsOpen(!isOpen)}>
-        <span className="gc-fab-icon">G</span>
+          <span className="gc-settings-link" onClick={() => {
+            chrome.runtime.sendMessage({ type: "OPEN_SIDE_PANEL" })
+          }}>
+            Settings
+          </span>
+        </div>
+
+      <button className="gc-fab" onClick={() => setIsOpen(!isOpen)} aria-label="Open GroupMailBox panel">
+        <span className="gc-fab-icon">
+          <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="1.5"/>
+            <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="22" cy="8" r="4" fill="#1a1a2e"/>
+            <circle cx="26" cy="8" r="4" fill="#1a1a2e"/>
+          </svg>
+        </span>
         {leadCount > 0 && <span className="gc-badge">{leadCount}</span>}
       </button>
     </div>

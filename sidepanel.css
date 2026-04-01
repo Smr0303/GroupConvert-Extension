@@ -12,7 +12,7 @@
   --yellow: #ffd93d;
   --text-primary: #f0f0f0;
   --text-secondary: #a0a0b8;
-  --text-muted: #6b6b88;
+  --text-muted: #8888a8;
   --border: rgba(255, 255, 255, 0.06);
   --border-teal: rgba(0, 212, 170, 0.2);
   --radius: 10px;
@@ -27,6 +27,8 @@
 
 body {
   width: 100%;
+  max-width: 420px;
+  margin: 0 auto;
   min-height: 480px;
   background: var(--navy);
   color: var(--text-primary);
@@ -71,7 +73,7 @@ body::-webkit-scrollbar-thumb {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Sora', sans-serif;
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 800;
   font-size: 16px;
   color: var(--navy);
@@ -79,13 +81,32 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-logo-text {
-  font-family: 'Sora', sans-serif;
-  font-size: 18px;
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-size: 16px;
   font-weight: 700;
+  display: flex;
+  gap: 0;
+}
+
+.gc-logo-group {
+  color: var(--text-primary);
+}
+
+.gc-logo-mailbox {
   background: linear-gradient(135deg, var(--teal), #7efadb);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.gc-logo-tagline {
+  font-family: 'DM Sans', sans-serif;
+  font-size: 8px;
+  font-weight: 400;
+  color: var(--text-muted);
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  margin-top: 2px;
 }
 
 .gc-logo-version {
@@ -107,7 +128,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-section-title {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 1.2px;
@@ -277,6 +298,39 @@ body::-webkit-scrollbar-thumb {
   color: var(--text-secondary);
 }
 
+.gc-status-success {
+  color: var(--teal);
+  font-size: 11px;
+}
+
+.gc-status-error {
+  color: var(--red);
+  font-size: 11px;
+}
+
+.gc-error-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.gc-btn-link {
+  background: none;
+  border: none;
+  color: var(--teal);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.gc-btn-link:hover {
+  color: var(--teal-dim);
+}
+
 /* ---- Leads card ---- */
 
 .gc-leads-card {
@@ -289,7 +343,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-leads-count {
-  font-family: 'Sora', sans-serif;
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-size: 36px;
   font-weight: 800;
   color: var(--teal);
@@ -303,7 +357,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-leads-meta {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
   margin-top: 10px;
   padding-top: 8px;
@@ -330,7 +384,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-setting-desc {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
   margin-top: 2px;
 }
@@ -414,6 +468,11 @@ body::-webkit-scrollbar-thumb {
   box-shadow: 0 0 0 4px var(--teal-glow);
 }
 
+.gc-slider:focus-visible {
+  outline: 2px solid var(--teal);
+  outline-offset: 2px;
+}
+
 .gc-slider-value {
   font-size: 11px;
   font-weight: 600;
@@ -443,7 +502,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-warning-text {
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-secondary);
   line-height: 1.4;
 }
@@ -466,9 +525,180 @@ body::-webkit-scrollbar-thumb {
 .gc-footer {
   padding: 10px 20px;
   text-align: center;
-  font-size: 10px;
+  font-size: 11px;
   color: var(--text-muted);
   border-top: 1px solid var(--border);
+}
+
+/* ---- Welcome screen ---- */
+
+.gc-welcome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+  padding: 40px 24px;
+  text-align: center;
+}
+
+.gc-welcome-logo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.gc-welcome-desc {
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 24px;
+  max-width: 260px;
+}
+
+.gc-welcome-steps {
+  background: var(--navy-light);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  width: 100%;
+  text-align: left;
+}
+
+.gc-welcome-step {
+  color: var(--text-secondary);
+  font-size: 12px;
+  padding: 4px 0;
+}
+
+/* ---- Stepper ---- */
+
+.gc-stepper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 12px 20px;
+  gap: 0;
+}
+
+.gc-step-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.gc-step {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 600;
+  background: var(--navy-lighter);
+  color: var(--text-muted);
+  border: 2px solid var(--border);
+  flex-shrink: 0;
+}
+
+.gc-step-active {
+  border-color: var(--teal);
+  color: var(--teal);
+  animation: gc-dot-pulse 2s infinite;
+}
+
+.gc-step-complete {
+  background: var(--teal);
+  border-color: var(--teal);
+  color: var(--navy);
+  font-weight: 700;
+}
+
+.gc-step-line {
+  width: 24px;
+  height: 2px;
+  background: var(--border);
+}
+
+.gc-step-line-complete {
+  background: var(--teal);
+}
+
+/* ---- Offline banner ---- */
+
+.gc-offline-banner {
+  background: rgba(255, 217, 61, 0.12);
+  color: var(--yellow);
+  text-align: center;
+  padding: 8px 16px;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ---- Helper text ---- */
+
+.gc-helper-text {
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  margin-bottom: 6px;
+}
+
+/* ---- Toast ---- */
+
+.gc-toast-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+}
+
+.gc-toast {
+  background: var(--navy-lighter);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  animation: gc-slide-down 0.2s ease-out;
+  border-left: 3px solid var(--teal);
+}
+
+.gc-toast-error {
+  border-left-color: var(--red);
+}
+
+.gc-toast-info {
+  border-left-color: #5b8def;
+}
+
+.gc-toast-message {
+  flex: 1;
+  color: var(--text-primary);
+}
+
+.gc-toast-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+}
+
+@keyframes gc-slide-down {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* ---- Animations ---- */

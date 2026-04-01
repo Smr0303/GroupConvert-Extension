@@ -12,7 +12,9 @@ type ConnectionStatus = "disconnected" | "checking" | "connected" | "error"
 
 function Popup() {
   // Connection
-  const [backendUrl, setBackendUrl] = useState("http://localhost:3000")
+  const [backendUrl, setBackendUrl] = useState(
+    process.env.PLASMO_PUBLIC_BACKEND_URL || "http://localhost:3000"
+  )
   const [licenseKey, setLicenseKey] = useState("")
   const [connectionStatus, setConnectionStatus] =
     useState<ConnectionStatus>("disconnected")
@@ -38,6 +40,13 @@ function Popup() {
   const [autoApprove, setAutoApprove] = useState(false)
   const [pushDelay, setPushDelay] = useState(2)
 
+  // Onboarding
+  const [showWelcome, setShowWelcome] = useState(false)
+  const [welcomeLoaded, setWelcomeLoaded] = useState(false)
+
+  // Network
+  const [networkStatus, setNetworkStatus] = useState<"online" | "offline">("online")
+
   // Load persisted state on mount
   useEffect(() => {
     chrome.storage.local.get(
@@ -55,9 +64,14 @@ function Popup() {
         "pendingLeadsCount",
         "onMemberRequestsPage",
         "lastPushAt",
-        "lastPushCount"
+        "lastPushCount",
+        "hasSeenWelcome"
       ],
       (result) => {
+        if (!result.hasSeenWelcome && !result.authToken) {
+          setShowWelcome(true)
+        }
+        setWelcomeLoaded(true)
         if (result.backendUrl) setBackendUrl(result.backendUrl)
         if (result.licenseKey) setLicenseKey(result.licenseKey)
         if (result.authToken) {
@@ -69,7 +83,7 @@ function Popup() {
             email: result.userEmail || "",
             plan: result.userPlan || ""
           })
-          console.log("[GC] Restored auth from storage, userId:", result.userId)
+          console.log("[GroupMailBox] Restored auth from storage, userId:", result.userId)
         }
         if (result.googleConnected) setGoogleConnected(true)
         if (result.sheetId) setSheetId(result.sheetId)
@@ -123,9 +137,24 @@ function Popup() {
       if (changes.lastPushCount) {
         setLastPushCount(changes.lastPushCount.newValue || 0)
       }
+      if (changes.googleConnected) {
+        setGoogleConnected(changes.googleConnected.newValue)
+      }
     }
     chrome.storage.onChanged.addListener(listener)
     return () => chrome.storage.onChanged.removeListener(listener)
+  }, [])
+
+  // Network status listener
+  useEffect(() => {
+    const handleOffline = () => setNetworkStatus("offline")
+    const handleOnline = () => setNetworkStatus("online")
+    window.addEventListener("offline", handleOffline)
+    window.addEventListener("online", handleOnline)
+    return () => {
+      window.removeEventListener("offline", handleOffline)
+      window.removeEventListener("online", handleOnline)
+    }
   }, [])
 
   // Verify license
@@ -162,11 +191,18 @@ function Popup() {
       setConnectionStatus("connected")
       setStatusMessage("Connected")
 
-      // Persist
+      // Persist — store token expiry (24h from now as fallback)
+      let tokenExpiresAt = Date.now() + 24 * 60 * 60 * 1000
+      try {
+        const payload = JSON.parse(atob(data.token.split(".")[1]))
+        if (payload.exp) tokenExpiresAt = payload.exp * 1000
+      } catch {}
+
       await chrome.storage.local.set({
         backendUrl,
         licenseKey: licenseKey.trim(),
         authToken: data.token,
+        tokenExpiresAt,
         userId: data.user.id,
         userEmail: data.user.email,
         userPlan: data.user.plan
@@ -186,6 +222,12 @@ function Popup() {
     chrome.tabs.create({ url })
   }, [backendUrl, userInfo])
 
+  // Extract sheet ID from URL or raw ID
+  const extractSheetId = (input: string): string => {
+    const match = input.match(/spreadsheets\/d\/([a-zA-Z0-9-_]+)/)
+    return match ? match[1] : input.trim()
+  }
+
   // Save sheet ID
   const handleSaveSheet = useCallback(async () => {
     if (!sheetId.trim() || !authToken) return
@@ -194,13 +236,14 @@ function Popup() {
     setSheetStatus("")
 
     try {
+      const parsedSheetId = extractSheetId(sheetId)
       const response = await fetch(`${backendUrl}/api/sheets/configure`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`
         },
-        body: JSON.stringify({ sheetId: sheetId.trim() })
+        body: JSON.stringify({ sheetId: parsedSheetId })
       })
 
       if (!response.ok) {
@@ -210,8 +253,9 @@ function Popup() {
         )
       }
 
+      setSheetId(parsedSheetId)
       setSheetStatus("Saved")
-      await chrome.storage.local.set({ sheetId: sheetId.trim() })
+      await chrome.storage.local.set({ sheetId: parsedSheetId })
     } catch (err) {
       setSheetStatus(
         err instanceof Error ? err.message : "Failed to save"
@@ -222,21 +266,27 @@ function Popup() {
   }, [backendUrl, authToken, sheetId])
 
   // Push leads
+  const [pushSuccess, setPushSuccess] = useState<boolean | null>(null)
+
   const handlePush = useCallback(async () => {
     setIsPushing(true)
     setPushStatus("")
+    setPushSuccess(null)
 
     try {
       const response = await chrome.runtime.sendMessage({
         name: "push-leads"
       })
       if (response?.success) {
-        setPushStatus(`Pushed ${response.pushed} leads`)
+        setPushStatus(`\u2705 Pushed ${response.pushed} leads`)
+        setPushSuccess(true)
       } else {
-        setPushStatus(response?.error || "Push failed")
+        setPushStatus(`\u274C ${response?.error || "Push failed"}`)
+        setPushSuccess(false)
       }
     } catch (err) {
-      setPushStatus(err instanceof Error ? err.message : "Push failed")
+      setPushStatus(`\u274C ${err instanceof Error ? err.message : "Push failed"}`)
+      setPushSuccess(false)
     } finally {
       setIsPushing(false)
     }
@@ -267,16 +317,104 @@ function Popup() {
 
   const isConnected = connectionStatus === "connected"
 
+  // Onboarding step calculation
+  const currentStep = !authToken ? 1 : !googleConnected ? 2 : !sheetId.trim() ? 3 : 4
+  const setupComplete = currentStep === 4
+
+  const handleDismissWelcome = () => {
+    setShowWelcome(false)
+    chrome.storage.local.set({ hasSeenWelcome: true })
+  }
+
+  // Welcome screen
+  if (showWelcome && welcomeLoaded) {
+    return (
+      <div className="gc-welcome">
+        <div className="gc-welcome-logo">
+          <div className="gc-logo-mark" style={{ width: 48, height: 48, borderRadius: 12 }}>
+            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="2"/>
+              <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="22" cy="8" r="5" fill="#1a1a2e"/>
+              <circle cx="26" cy="8" r="5" fill="#1a1a2e"/>
+            </svg>
+          </div>
+          <div className="gc-logo-text" style={{ fontSize: 20 }}>
+            <span className="gc-logo-group">group</span>
+            <span className="gc-logo-mailbox">mailbox</span>
+          </div>
+        </div>
+        <p className="gc-welcome-desc">
+          Capture leads from your Facebook Group and push them to Google Sheets
+        </p>
+        <div className="gc-welcome-steps">
+          <div className="gc-welcome-step">1. Verify your license</div>
+          <div className="gc-welcome-step">2. Connect Google Sheets</div>
+          <div className="gc-welcome-step">3. Start capturing</div>
+        </div>
+        <button
+          className="gc-btn gc-btn-primary gc-btn-block"
+          onClick={handleDismissWelcome}>
+          Get Started →
+        </button>
+      </div>
+    )
+  }
+
   return (
     <div>
       {/* Header */}
       <div className="gc-header">
         <div className="gc-logo">
-          <div className="gc-logo-mark">G</div>
-          <span className="gc-logo-text">GroupConvert</span>
+          <div className="gc-logo-mark">
+            <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="2"/>
+              <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="22" cy="8" r="5" fill="#1a1a2e"/>
+              <circle cx="26" cy="8" r="5" fill="#1a1a2e"/>
+              <circle cx="24" cy="7" r="3.5" fill="#1a1a2e"/>
+            </svg>
+          </div>
+          <span className="gc-logo-text">
+            <span className="gc-logo-group">group</span>
+            <span className="gc-logo-mailbox">mailbox</span>
+          </span>
           <span className="gc-logo-version">v0.1.0</span>
         </div>
+        <div className="gc-logo-tagline">capture. connect. convert.</div>
       </div>
+
+      {/* Network offline banner */}
+      {networkStatus === "offline" && (
+        <div className="gc-offline-banner">
+          You're offline — some features may not work
+        </div>
+      )}
+
+      {/* Step indicator (hidden when setup complete) */}
+      {!setupComplete && (
+        <div className="gc-stepper">
+          {[1, 2, 3, 4].map((step) => (
+            <div key={step} className="gc-step-wrapper">
+              <div
+                className={`gc-step ${
+                  step < currentStep
+                    ? "gc-step-complete"
+                    : step === currentStep
+                      ? "gc-step-active"
+                      : ""
+                }`}>
+                {step < currentStep ? "\u2713" : step}
+              </div>
+              {step < 4 && (
+                <div
+                  className={`gc-step-line ${step < currentStep ? "gc-step-line-complete" : ""}`}
+                />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Connection Section */}
       <div className="gc-section gc-animate-in">
@@ -306,6 +444,12 @@ function Popup() {
           </div>
         </div>
 
+        {!isConnected && (
+          <div className="gc-helper-text">
+            Enter the license key from your purchase confirmation email
+          </div>
+        )}
+
         <div className="gc-status-row">
           <span
             className={`gc-status-dot ${
@@ -315,6 +459,8 @@ function Popup() {
                   ? "checking"
                   : "disconnected"
             }`}
+            role="status"
+            aria-label={`Connection status: ${connectionStatus}`}
           />
           <span className="gc-status-text">
             {statusMessage ||
@@ -322,6 +468,9 @@ function Popup() {
                 ? `Connected as ${userInfo?.email || "user"}`
                 : "Not connected")}
           </span>
+          {connectionStatus === "error" && (
+            <button className="gc-btn-link" onClick={handleVerify}>Retry</button>
+          )}
         </div>
       </div>
 
@@ -357,7 +506,7 @@ function Popup() {
                 type="text"
                 value={sheetId}
                 onChange={(e) => setSheetId(e.target.value)}
-                placeholder="Paste Google Sheet URL or ID"
+                placeholder="Paste your Google Sheet URL"
               />
               <button
                 className="gc-btn gc-btn-secondary gc-btn-sm"
@@ -368,7 +517,14 @@ function Popup() {
             </div>
           </div>
           {sheetStatus && (
-            <span className="gc-status-text">{sheetStatus}</span>
+            <div className="gc-error-row">
+              <span className={sheetStatus === "Saved" ? "gc-status-success" : "gc-status-error"}>
+                {sheetStatus}
+              </span>
+              {sheetStatus !== "Saved" && (
+                <button className="gc-btn-link" onClick={handleSaveSheet}>Retry</button>
+              )}
+            </div>
           )}
         </div>
       )}
@@ -427,8 +583,13 @@ function Popup() {
           </button>
 
           {pushStatus && (
-            <div className="gc-status-row" style={{ marginTop: 6 }}>
-              <span className="gc-status-text">{pushStatus}</span>
+            <div className="gc-error-row">
+              <span className={pushSuccess ? "gc-status-success" : pushSuccess === false ? "gc-status-error" : "gc-status-text"}>
+                {pushStatus}
+              </span>
+              {pushSuccess === false && (
+                <button className="gc-btn-link" onClick={handlePush}>Retry</button>
+              )}
             </div>
           )}
         </div>
@@ -441,9 +602,9 @@ function Popup() {
 
           <div className="gc-setting-row">
             <div className="gc-setting-info">
-              <div className="gc-setting-name">Auto-Approve</div>
+              <div className="gc-setting-name">Auto-approve new members</div>
               <div className="gc-setting-desc">
-                Automatically approve requests after capture
+                When enabled, new members will be automatically approved when you visit the requests page
               </div>
             </div>
             <label className="gc-switch">
@@ -451,6 +612,7 @@ function Popup() {
                 type="checkbox"
                 checked={autoApprove}
                 onChange={(e) => handleAutoApproveToggle(e.target.checked)}
+                aria-label="Auto-approve toggle"
               />
               <span className="gc-switch-track" />
               <span className="gc-switch-thumb" />
@@ -483,6 +645,10 @@ function Popup() {
               step={0.5}
               value={pushDelay}
               onChange={(e) => handleDelayChange(Number(e.target.value))}
+              aria-label="Push delay in seconds"
+              aria-valuemin={1}
+              aria-valuemax={3}
+              aria-valuenow={pushDelay}
             />
             <span className="gc-slider-value">{pushDelay}s</span>
           </div>
@@ -490,7 +656,7 @@ function Popup() {
       )}
 
       {/* Footer */}
-      <div className="gc-footer">GroupConvert v0.1.0 -- POC Build</div>
+      <div className="gc-footer">groupmailbox v0.1.0</div>
     </div>
   )
 }
