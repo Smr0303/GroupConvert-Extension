@@ -43,9 +43,9 @@ describe('Phase 1: Branding - GroupConvert → GroupMailBox', () => {
 });
 
 describe('Phase 2: Accessibility', () => {
-  it('sidepanel.css uses accessible muted text color (#8888a8)', () => {
+  it('sidepanel.css uses accessible muted text color (#5C6578)', () => {
     const css = readFile('sidepanel.css');
-    expect(css).toContain('--text-muted: #8888a8');
+    expect(css).toContain('--text-muted: #5C6578');
     expect(css).not.toContain('--text-muted: #6b6b88');
   });
 
@@ -221,9 +221,9 @@ describe('Phase 6+: Polish', () => {
 
   it('capture-ui.tsx uses CSS variables', () => {
     const tsx = readFile('contents/capture-ui.tsx');
-    expect(tsx).toContain('--navy: #1a1a2e');
-    expect(tsx).toContain('--teal: #00d4aa');
-    expect(tsx).toContain('--text-muted: #8888a8');
+    expect(tsx).toContain('--navy: #0C1220');
+    expect(tsx).toContain('--teal: #4F8CFF');
+    expect(tsx).toContain('--text-muted: #5C6578');
   });
 
   it('background/index.ts handles OPEN_SIDE_PANEL message', () => {

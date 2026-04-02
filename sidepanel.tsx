@@ -333,10 +333,10 @@ function Popup() {
         <div className="gc-welcome-logo">
           <div className="gc-logo-mark" style={{ width: 48, height: 48, borderRadius: 12 }}>
             <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="2"/>
-              <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="22" cy="8" r="5" fill="#1a1a2e"/>
-              <circle cx="26" cy="8" r="5" fill="#1a1a2e"/>
+              <rect x="2" y="8" width="28" height="18" rx="3" fill="#0C1220" stroke="#0C1220" strokeWidth="2"/>
+              <path d="M4 10l12 9 12-9" stroke="#0C1220" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="22" cy="8" r="5" fill="#0C1220"/>
+              <circle cx="26" cy="8" r="5" fill="#0C1220"/>
             </svg>
           </div>
           <div className="gc-logo-text" style={{ fontSize: 20 }}>
@@ -368,11 +368,11 @@ function Popup() {
         <div className="gc-logo">
           <div className="gc-logo-mark">
             <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="2"/>
-              <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="22" cy="8" r="5" fill="#1a1a2e"/>
-              <circle cx="26" cy="8" r="5" fill="#1a1a2e"/>
-              <circle cx="24" cy="7" r="3.5" fill="#1a1a2e"/>
+              <rect x="2" y="8" width="28" height="18" rx="3" fill="#0C1220" stroke="#0C1220" strokeWidth="2"/>
+              <path d="M4 10l12 9 12-9" stroke="#0C1220" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+              <circle cx="22" cy="8" r="5" fill="#0C1220"/>
+              <circle cx="26" cy="8" r="5" fill="#0C1220"/>
+              <circle cx="24" cy="7" r="3.5" fill="#0C1220"/>
             </svg>
           </div>
           <span className="gc-logo-text">

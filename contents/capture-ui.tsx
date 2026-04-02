@@ -19,11 +19,11 @@ export const getStyle: PlasmoGetStyle = () => {
     :host {
       all: initial;
       font-family: 'DM Sans', sans-serif;
-      --navy: #1a1a2e;
-      --teal: #00d4aa;
-      --teal-dim: #00b894;
-      --text-primary: #f0f0f0;
-      --text-muted: #8888a8;
+      --navy: #0C1220;
+      --teal: #4F8CFF;
+      --teal-dim: #3A75E0;
+      --text-primary: #E8ECF1;
+      --text-muted: #5C6578;
       --red: #ff6b6b;
     }
 
@@ -39,8 +39,8 @@ export const getStyle: PlasmoGetStyle = () => {
     }
 
     .gc-panel {
-      background: #1a1a2e;
-      border: 1px solid rgba(0, 212, 170, 0.2);
+      background: #0C1220;
+      border: 1px solid rgba(79, 140, 255, 0.3);
       border-radius: 14px;
       padding: 16px;
       width: 280px;
@@ -64,13 +64,13 @@ export const getStyle: PlasmoGetStyle = () => {
     .gc-panel-title {
       font-size: 13px;
       font-weight: 600;
-      color: #00d4aa;
+      color: #4F8CFF;
     }
 
     .gc-close-btn {
       background: none;
       border: none;
-      color: #a0a0b8;
+      color: #8B95A8;
       cursor: pointer;
       font-size: 16px;
       padding: 2px 6px;
@@ -111,13 +111,13 @@ export const getStyle: PlasmoGetStyle = () => {
     }
 
     .gc-btn-primary {
-      background: linear-gradient(135deg, #00d4aa, #00b894);
-      color: #1a1a2e;
+      background: linear-gradient(135deg, #4F8CFF, #3A75E0);
+      color: #0C1220;
     }
 
     .gc-btn-primary:hover {
       transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(0, 212, 170, 0.3);
+      box-shadow: 0 4px 12px rgba(79, 140, 255, 0.3);
     }
 
     .gc-btn-primary:active {
@@ -175,7 +175,7 @@ export const getStyle: PlasmoGetStyle = () => {
     }
 
     .gc-toggle input:checked + .gc-toggle-track {
-      background: #00d4aa;
+      background: #4F8CFF;
     }
 
     .gc-toggle-thumb {
@@ -194,8 +194,8 @@ export const getStyle: PlasmoGetStyle = () => {
     }
 
     .gc-btn-secondary {
-      background: #2d2d52;
-      color: #f0f0f0;
+      background: #1C2840;
+      color: #E8ECF1;
       border: 1px solid rgba(255,255,255,0.06);
     }
 
@@ -204,7 +204,7 @@ export const getStyle: PlasmoGetStyle = () => {
     }
 
     .gc-confirm-overlay {
-      background: rgba(26, 26, 46, 0.95);
+      background: rgba(12, 18, 32, 0.95);
       border-radius: 10px;
       padding: 16px;
       text-align: center;
@@ -219,7 +219,7 @@ export const getStyle: PlasmoGetStyle = () => {
 
     .gc-confirm-text {
       font-size: 12px;
-      color: #a0a0b8;
+      color: #8B95A8;
       margin: 0 0 12px;
       line-height: 1.4;
     }
@@ -236,12 +236,12 @@ export const getStyle: PlasmoGetStyle = () => {
 
     .gc-status {
       font-size: 11px;
-      color: #8888a8;
+      color: #5C6578;
       margin-top: 4px;
     }
 
     .gc-status-success {
-      color: #00d4aa;
+      color: #4F8CFF;
     }
 
     .gc-status-error {
@@ -254,7 +254,7 @@ export const getStyle: PlasmoGetStyle = () => {
       border-radius: 6px;
       padding: 8px 10px;
       font-size: 11px;
-      color: #a0a0b8;
+      color: #8B95A8;
       margin-bottom: 8px;
     }
 
@@ -262,14 +262,14 @@ export const getStyle: PlasmoGetStyle = () => {
       display: block;
       text-align: center;
       font-size: 11px;
-      color: #8888a8;
+      color: #5C6578;
       cursor: pointer;
       padding: 4px;
       margin-top: 4px;
     }
 
     .gc-settings-link:hover {
-      color: #00d4aa;
+      color: #4F8CFF;
     }
 
     .gc-panel-open {
@@ -290,20 +290,20 @@ export const getStyle: PlasmoGetStyle = () => {
       width: 52px;
       height: 52px;
       border-radius: 50%;
-      background: linear-gradient(135deg, #00d4aa, #00b894);
+      background: linear-gradient(135deg, #4F8CFF, #3A75E0);
       border: none;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 4px 20px rgba(0, 212, 170, 0.3);
+      box-shadow: 0 4px 20px rgba(79, 140, 255, 0.3);
       transition: all 0.2s ease;
       position: relative;
     }
 
     .gc-fab:hover {
       transform: scale(1.08);
-      box-shadow: 0 6px 24px rgba(0, 212, 170, 0.4);
+      box-shadow: 0 6px 24px rgba(79, 140, 255, 0.4);
     }
 
     .gc-fab:active {
@@ -312,7 +312,7 @@ export const getStyle: PlasmoGetStyle = () => {
 
     .gc-fab-icon {
       font-size: 22px;
-      color: #1a1a2e;
+      color: #0C1220;
       font-weight: 700;
     }
 
@@ -543,10 +543,10 @@ const CaptureOverlay = () => {
       <button className="gc-fab" onClick={() => setIsOpen(!isOpen)} aria-label="Open GroupMailBox panel">
         <span className="gc-fab-icon">
           <svg width="24" height="24" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect x="2" y="8" width="28" height="18" rx="3" fill="#1a1a2e" stroke="#1a1a2e" strokeWidth="1.5"/>
-            <path d="M4 10l12 9 12-9" stroke="#1a1a2e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-            <circle cx="22" cy="8" r="4" fill="#1a1a2e"/>
-            <circle cx="26" cy="8" r="4" fill="#1a1a2e"/>
+            <rect x="2" y="8" width="28" height="18" rx="3" fill="#0C1220" stroke="#0C1220" strokeWidth="1.5"/>
+            <path d="M4 10l12 9 12-9" stroke="#0C1220" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+            <circle cx="22" cy="8" r="4" fill="#0C1220"/>
+            <circle cx="26" cy="8" r="4" fill="#0C1220"/>
           </svg>
         </span>
         {leadCount > 0 && <span className="gc-badge">{leadCount}</span>}

@@ -1,20 +1,20 @@
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=Sora:wght@600;700;800&display=swap');
 
 :root {
-  --navy: #1a1a2e;
-  --navy-light: #232342;
-  --navy-lighter: #2d2d52;
-  --teal: #00d4aa;
-  --teal-dim: #00b894;
-  --teal-glow: rgba(0, 212, 170, 0.15);
+  --navy: #0C1220;
+  --navy-light: #141D2E;
+  --navy-lighter: #1C2840;
+  --teal: #4F8CFF;
+  --teal-dim: #3A75E0;
+  --teal-glow: rgba(79, 140, 255, 0.15);
   --red: #ff6b6b;
   --red-dim: rgba(255, 107, 107, 0.15);
   --yellow: #ffd93d;
-  --text-primary: #f0f0f0;
-  --text-secondary: #a0a0b8;
-  --text-muted: #8888a8;
-  --border: rgba(255, 255, 255, 0.06);
-  --border-teal: rgba(0, 212, 170, 0.2);
+  --text-primary: #E8ECF1;
+  --text-secondary: #8B95A8;
+  --text-muted: #5C6578;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-teal: rgba(79, 140, 255, 0.3);
   --radius: 10px;
   --radius-sm: 6px;
 }
@@ -56,7 +56,7 @@ body::-webkit-scrollbar-thumb {
 .gc-header {
   padding: 20px 20px 16px;
   border-bottom: 1px solid var(--border);
-  background: linear-gradient(180deg, rgba(0, 212, 170, 0.06) 0%, transparent 100%);
+  background: linear-gradient(180deg, rgba(79, 140, 255, 0.06) 0%, transparent 100%);
 }
 
 .gc-logo {
@@ -93,7 +93,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-logo-mailbox {
-  background: linear-gradient(135deg, var(--teal), #7efadb);
+  background: linear-gradient(135deg, var(--teal), #7EB8FF);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -217,7 +217,7 @@ body::-webkit-scrollbar-thumb {
 }
 
 .gc-btn-primary:hover:not(:disabled) {
-  box-shadow: 0 4px 16px rgba(0, 212, 170, 0.3);
+  box-shadow: 0 4px 16px rgba(79, 140, 255, 0.3);
   transform: translateY(-1px);
 }
 
@@ -269,7 +269,7 @@ body::-webkit-scrollbar-thumb {
 
 .gc-status-dot.connected {
   background: var(--teal);
-  box-shadow: 0 0 8px rgba(0, 212, 170, 0.5);
+  box-shadow: 0 0 8px rgba(79, 140, 255, 0.5);
   animation: gc-dot-pulse 2s infinite;
 }
 
@@ -284,8 +284,8 @@ body::-webkit-scrollbar-thumb {
 }
 
 @keyframes gc-dot-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 212, 170, 0.4); }
-  50% { box-shadow: 0 0 0 5px rgba(0, 212, 170, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(79, 140, 255, 0.4); }
+  50% { box-shadow: 0 0 0 5px rgba(79, 140, 255, 0); }
 }
 
 @keyframes gc-dot-blink {
