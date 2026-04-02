@@ -332,16 +332,28 @@ function Popup() {
       <div className="gc-welcome">
         <div className="gc-welcome-logo">
           <div className="gc-logo-mark" style={{ width: 48, height: 48, borderRadius: 12 }}>
-            <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="8" width="28" height="18" rx="3" fill="#0C1220" stroke="#0C1220" strokeWidth="2"/>
-              <path d="M4 10l12 9 12-9" stroke="#0C1220" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="22" cy="8" r="5" fill="#0C1220"/>
-              <circle cx="26" cy="8" r="5" fill="#0C1220"/>
+            <svg width="48" height="48" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="welcomeIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#4F8CFF', stopOpacity: 1 }} />
+                  <stop offset="100%" style={{ stopColor: '#3A75E0', stopOpacity: 1 }} />
+                </linearGradient>
+              </defs>
+              <circle cx="32" cy="32" r="30" fill="#0C1220" />
+              <rect x="14" y="26" width="36" height="24" rx="4" fill="url(#welcomeIconGrad)" />
+              <path d="M14,26 L32,42 L50,26" fill="none" stroke="#0C1220" strokeWidth="2" strokeLinejoin="round" />
+              <path d="M14,50 L26,40 M50,50 L38,40" fill="none" stroke="rgba(12,18,32,0.3)" strokeWidth="1" strokeLinecap="round" />
+              <circle cx="32" cy="17" r="4" fill="#4F8CFF" />
+              <path d="M26,26 Q26,21 32,21 Q38,21 38,26" fill="#4F8CFF" />
+              <circle cx="21" cy="19" r="2.8" fill="#3A75E0" />
+              <path d="M16,26 Q16,23 21,23 Q26,23 26,26" fill="#3A75E0" />
+              <circle cx="43" cy="19" r="2.8" fill="#3A75E0" />
+              <path d="M38,26 Q38,23 43,23 Q48,23 48,26" fill="#3A75E0" />
             </svg>
           </div>
           <div className="gc-logo-text" style={{ fontSize: 20 }}>
-            <span className="gc-logo-group">group</span>
-            <span className="gc-logo-mailbox">mailbox</span>
+            <span className="gc-logo-group">Group</span>
+            <span className="gc-logo-mailbox">MailBox</span>
           </div>
         </div>
         <p className="gc-welcome-desc">
@@ -367,17 +379,28 @@ function Popup() {
       <div className="gc-header">
         <div className="gc-logo">
           <div className="gc-logo-mark">
-            <svg width="18" height="18" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect x="2" y="8" width="28" height="18" rx="3" fill="#0C1220" stroke="#0C1220" strokeWidth="2"/>
-              <path d="M4 10l12 9 12-9" stroke="#0C1220" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-              <circle cx="22" cy="8" r="5" fill="#0C1220"/>
-              <circle cx="26" cy="8" r="5" fill="#0C1220"/>
-              <circle cx="24" cy="7" r="3.5" fill="#0C1220"/>
+            <svg width="32" height="32" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="headerIconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style={{ stopColor: '#4F8CFF', stopOpacity: 1 }} />
+                  <stop offset="100%" style={{ stopColor: '#3A75E0', stopOpacity: 1 }} />
+                </linearGradient>
+              </defs>
+              <circle cx="32" cy="32" r="30" fill="#0C1220" />
+              <rect x="14" y="26" width="36" height="24" rx="4" fill="url(#headerIconGrad)" />
+              <path d="M14,26 L32,42 L50,26" fill="none" stroke="#0C1220" strokeWidth="2" strokeLinejoin="round" />
+              <path d="M14,50 L26,40 M50,50 L38,40" fill="none" stroke="rgba(12,18,32,0.3)" strokeWidth="1" strokeLinecap="round" />
+              <circle cx="32" cy="17" r="4" fill="#4F8CFF" />
+              <path d="M26,26 Q26,21 32,21 Q38,21 38,26" fill="#4F8CFF" />
+              <circle cx="21" cy="19" r="2.8" fill="#3A75E0" />
+              <path d="M16,26 Q16,23 21,23 Q26,23 26,26" fill="#3A75E0" />
+              <circle cx="43" cy="19" r="2.8" fill="#3A75E0" />
+              <path d="M38,26 Q38,23 43,23 Q48,23 48,26" fill="#3A75E0" />
             </svg>
           </div>
           <span className="gc-logo-text">
-            <span className="gc-logo-group">group</span>
-            <span className="gc-logo-mailbox">mailbox</span>
+            <span className="gc-logo-group">Group</span>
+            <span className="gc-logo-mailbox">MailBox</span>
           </span>
           <span className="gc-logo-version">v0.1.0</span>
         </div>
